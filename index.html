@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Testing verplaatsen 2</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productaantallen met Numpad</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto 30px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    #display {
+      font-size: 1.8em;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      max-width: 200px;
+      margin: 15px auto;
+    }
+
+    .numpad button {
+      padding: 8px;
+      font-size: 1em;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+
+    .numpad button:active {
+      background-color: #ddd;
+    }
+
+    .submit-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Product Aantallen & Numpad</h1>
+
+  <form id="productForm">
+    <label for="vanLocatie">Van Locatie:</label>
+    <input type="text" id="vanLocatie" name="vanLocatie" inputmode="none" placeholder="Scan Locatie" required>
+
+    <label for="ean">EAN:</label>
+    <input type="text" id="ean" name="ean" inputmode="none" placeholder="Scan EAN" required>
+
+    <label for="display">Aantal (via numpad):</label>
+    <input type="text" id="display" readonly>
+
+    <div class="numpad">
+      <button type="button" onclick="press('1')">1</button>
+      <button type="button" onclick="press('2')">2</button>
+      <button type="button" onclick="press('3')">3</button>
+      <button type="button" onclick="press('4')">4</button>
+      <button type="button" onclick="press('5')">5</button>
+      <button type="button" onclick="press('6')">6</button>
+      <button type="button" onclick="press('7')">7</button>
+      <button type="button" onclick="press('8')">8</button>
+      <button type="button" onclick="press('9')">9</button>
+      <button type="button" onclick="clearDisplay()">C</button>
+      <button type="button" onclick="press('0')">0</button>
+      <button type="button" onclick="backspace()">←</button>
+      <button type="button" onclick="confirmNumpad()">Enter</button>
+      <button type="button" onclick="incrementDisplay()">+</button>
+      <button type="button" onclick="decrementDisplay()">−</button>
+    </div>
+
+    <label for="naarLocatie">Naar Locatie:</label>
+    <input type="text" id="naarLocatie" name="naarLocatie" inputmode="none" placeholder="Scan Naar Locatie">
+
+    <button type="submit" class="submit-button">Verzenden</button>
+  </form>
+
+  <script>
+    let originalValue = null;
+
+    function press(num) {
+      document.getElementById("display").value += num;
+    }
+
+    function clearDisplay() {
+      document.getElementById("display").value = '';
+      originalValue = null;
+    }
+
+    function backspace() {
+      const display = document.getElementById("display");
+      display.value = display.value.slice(0, -1);
+    }
+
+    function confirmNumpad() {
+      const display = document.getElementById("display");
+      const value = display.value.trim();
+      if (value) {
+        document.getElementById("display").value = value; // Houd de waarde
+      }
+      document.getElementById("naarLocatie").focus();
+    }
+
+    function getOriginalValue() {
+      const current = parseInt(document.getElementById("display").value.trim());
+      if (!isNaN(current)) {
+        if (originalValue === null) {
+          originalValue = current;
+        }
+        return originalValue;
+      }
+      return null;
+    }
+
+    function incrementDisplay() {
+      const display = document.getElementById("display");
+      const current = parseInt(display.value.trim());
+      const base = getOriginalValue();
+      if (!isNaN(current) && base !== null) {
+        display.value = current + base;
+      }
+    }
+
+    function decrementDisplay() {
+      const display = document.getElementById("display");
+      const current = parseInt(display.value.trim());
+      const base = getOriginalValue();
+      if (!isNaN(current) && base !== null) {
+        const result = current - base;
+        display.value = result >= 0 ? result : 0;
+      }
+    }
+
+    document.getElementById("display").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        confirmNumpad();
+      }
+    });
+
+    const fields = ["vanLocatie", "ean"];
+    fields.forEach((id, index) => {
+      const input = document.getElementById(id);
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (index < fields.length - 1) {
+            document.getElementById(fields[index + 1]).focus();
+          } else {
+            document.getElementById("display").focus();
+          }
+        }
+      });
+    });
+
+    document.getElementById("productForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("Formulier verzonden!");
+    });
+  </script>
+
+</body>
+</html>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
