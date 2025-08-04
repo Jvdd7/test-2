@@ -1,19 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Testing verplaatsen 2</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Productaantallen met Numpad</title>
+  <title>Voorraad verplaatsen</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -97,7 +87,7 @@
 </head>
 <body>
 
-  <h1>Product Aantallen & Numpad</h1>
+  <h1>Voorraad verplaatsen</h1>
 
   <form id="productForm">
     <label for="vanLocatie">Van Locatie:</label>
@@ -109,22 +99,25 @@
     <label for="display">Aantal (via numpad):</label>
     <input type="text" id="display" readonly>
 
-    <div class="numpad">
-      <button type="button" onclick="press('1')">1</button>
-      <button type="button" onclick="press('2')">2</button>
-      <button type="button" onclick="press('3')">3</button>
-      <button type="button" onclick="press('4')">4</button>
-      <button type="button" onclick="press('5')">5</button>
-      <button type="button" onclick="press('6')">6</button>
-      <button type="button" onclick="press('7')">7</button>
-      <button type="button" onclick="press('8')">8</button>
-      <button type="button" onclick="press('9')">9</button>
-      <button type="button" onclick="clearDisplay()">C</button>
-      <button type="button" onclick="press('0')">0</button>
-      <button type="button" onclick="backspace()">←</button>
-      <button type="button" onclick="confirmNumpad()">Enter</button>
-      <button type="button" onclick="incrementDisplay()">+</button>
-      <button type="button" onclick="decrementDisplay()">−</button>
+    <!-- ✅ Toegevoegde wrapper -->
+    <div id="numpadWrapper">
+      <div class="numpad">
+        <button type="button" onclick="press('1')">1</button>
+        <button type="button" onclick="press('2')">2</button>
+        <button type="button" onclick="press('3')">3</button>
+        <button type="button" onclick="press('4')">4</button>
+        <button type="button" onclick="press('5')">5</button>
+        <button type="button" onclick="press('6')">6</button>
+        <button type="button" onclick="press('7')">7</button>
+        <button type="button" onclick="press('8')">8</button>
+        <button type="button" onclick="press('9')">9</button>
+        <button type="button" onclick="clearDisplay()">C</button>
+        <button type="button" onclick="press('0')">0</button>
+        <button type="button" onclick="backspace()">←</button>
+        <button type="button" onclick="confirmNumpad()">Enter</button>
+        <button type="button" onclick="incrementDisplay()">+</button>
+        <button type="button" onclick="decrementDisplay()">−</button>
+      </div>
     </div>
 
     <label for="naarLocatie">Naar Locatie:</label>
@@ -154,7 +147,7 @@
       const display = document.getElementById("display");
       const value = display.value.trim();
       if (value) {
-        document.getElementById("display").value = value; // Houd de waarde
+        document.getElementById("display").value = value;
       }
       document.getElementById("naarLocatie").focus();
     }
@@ -205,7 +198,11 @@
           if (index < fields.length - 1) {
             document.getElementById(fields[index + 1]).focus();
           } else {
-            document.getElementById("display").focus();
+            const displayField = document.getElementById("display");
+            const numpadWrapper = document.getElementById("numpadWrapper");
+
+            displayField.focus();
+            numpadWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         }
       });
@@ -215,12 +212,11 @@
       e.preventDefault();
       alert("Formulier verzonden!");
     });
-  </script>
 
-</body>
-</html>
-<!-- partial -->
-  <script  src="./script.js"></script>
+    window.onload = function() {
+      document.getElementById("vanLocatie").focus();
+    };
+  </script>
 
 </body>
 </html>
