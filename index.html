@@ -126,97 +126,113 @@
     <button type="submit" class="submit-button">Verzenden</button>
   </form>
 
-  <script>
-    let originalValue = null;
+ <script>
+  let originalValue = null;
 
-    function press(num) {
-      document.getElementById("display").value += num;
+  function press(num) {
+    document.getElementById("display").value += num;
+  }
+
+  function clearDisplay() {
+    document.getElementById("display").value = '';
+    originalValue = null;
+  }
+
+  function backspace() {
+    const display = document.getElementById("display");
+    display.value = display.value.slice(0, -1);
+  }
+
+  function confirmNumpad() {
+    const display = document.getElementById("display");
+    const value = display.value.trim();
+    if (value) {
+      document.getElementById("display").value = value;
     }
+    document.getElementById("naarLocatie").focus();
+  }
 
-    function clearDisplay() {
-      document.getElementById("display").value = '';
-      originalValue = null;
-    }
-
-    function backspace() {
-      const display = document.getElementById("display");
-      display.value = display.value.slice(0, -1);
-    }
-
-    function confirmNumpad() {
-      const display = document.getElementById("display");
-      const value = display.value.trim();
-      if (value) {
-        document.getElementById("display").value = value;
+  function getOriginalValue() {
+    const current = parseInt(document.getElementById("display").value.trim());
+    if (!isNaN(current)) {
+      if (originalValue === null) {
+        originalValue = current;
       }
-      document.getElementById("naarLocatie").focus();
+      return originalValue;
     }
+    return null;
+  }
 
-    function getOriginalValue() {
-      const current = parseInt(document.getElementById("display").value.trim());
-      if (!isNaN(current)) {
-        if (originalValue === null) {
-          originalValue = current;
-        }
-        return originalValue;
-      }
-      return null;
+  function incrementDisplay() {
+    const display = document.getElementById("display");
+    const current = parseInt(display.value.trim());
+    const base = getOriginalValue();
+    if (!isNaN(current) && base !== null) {
+      display.value = current + base;
     }
+  }
 
-    function incrementDisplay() {
-      const display = document.getElementById("display");
-      const current = parseInt(display.value.trim());
-      const base = getOriginalValue();
-      if (!isNaN(current) && base !== null) {
-        display.value = current + base;
-      }
+  function decrementDisplay() {
+    const display = document.getElementById("display");
+    const current = parseInt(display.value.trim());
+    const base = getOriginalValue();
+    if (!isNaN(current) && base !== null) {
+      const result = current - base;
+      display.value = result >= 0 ? result : 0;
     }
+  }
 
-    function decrementDisplay() {
-      const display = document.getElementById("display");
-      const current = parseInt(display.value.trim());
-      const base = getOriginalValue();
-      if (!isNaN(current) && base !== null) {
-        const result = current - base;
-        display.value = result >= 0 ? result : 0;
-      }
+  document.getElementById("display").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      confirmNumpad();
     }
+  });
 
-    document.getElementById("display").addEventListener("keydown", function(e) {
+  const fields = ["vanLocatie", "ean"];
+  fields.forEach((id, index) => {
+    const input = document.getElementById(id);
+    input.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        confirmNumpad();
+        if (index < fields.length - 1) {
+          document.getElementById(fields[index + 1]).focus();
+        } else {
+          const displayField = document.getElementById("display");
+          const numpadWrapper = document.getElementById("numpadWrapper");
+
+          displayField.focus();
+          numpadWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       }
     });
+  });
 
-    const fields = ["vanLocatie", "ean"];
-    fields.forEach((id, index) => {
-      const input = document.getElementById(id);
-      input.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          if (index < fields.length - 1) {
-            document.getElementById(fields[index + 1]).focus();
-          } else {
-            const displayField = document.getElementById("display");
-            const numpadWrapper = document.getElementById("numpadWrapper");
+  // ✅ Scannen blokkeren tijdens numpad actief
+  function isNumpadActive() {
+    const active = document.activeElement;
+    return active.id === "display" || active.closest(".numpad");
+  }
 
-            displayField.focus();
-            numpadWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
-        }
-      });
+  ["vanLocatie", "ean", "naarLocatie"].forEach((id) => {
+    const input = document.getElementById(id);
+    input.addEventListener("keydown", function (e) {
+      if (isNumpadActive()) {
+        e.preventDefault();
+        console.log(`Scannen geblokkeerd tijdens numpad actief (${id})`);
+      }
     });
+  });
 
-    document.getElementById("productForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("Formulier verzonden!");
-    });
+  document.getElementById("productForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("Formulier verzonden!");
+  });
 
-    window.onload = function() {
-      document.getElementById("vanLocatie").focus();
-    };
-  </script>
+  window.onload = function() {
+    document.getElementById("vanLocatie").focus();
+  };
+</script>
 
 </body>
 </html>
